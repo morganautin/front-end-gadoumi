@@ -1,11 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { NgIf, DecimalPipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+import * as P from '../../state/products/products.actions';
+import {
+  selectLastRating,
+  selectProductsError,
+} from '../../state/products/products.selectors';
 
 interface ProductRating {
   product_id: number;
@@ -24,46 +29,47 @@ interface ProductRating {
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    HttpClientModule,
   ],
   templateUrl: './rating.html',
   styleUrls: ['./rating.css'],
 })
-export class RatingComponent {
+export class RatingComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private http = inject(HttpClient);
+  private store = inject(Store);
 
   form = this.fb.group({
     id: [1, Validators.required],
   });
 
-  loading = false;
   error: string | null = null;
   lastRating: ProductRating | null = null;
 
+  ngOnInit() {
+    // on écoute la dernière note présente dans le store
+    this.store.select(selectLastRating).subscribe((r) => {
+      if (r) {
+        this.lastRating = {
+          product_id: r.id,
+          avg_rating: r.avg_rating,
+          count: r.count,
+        };
+      }
+    });
+
+    // on écoute aussi les erreurs éventuelles
+    this.store.select(selectProductsError).subscribe((e) => {
+      this.error = e;
+    });
+  }
+
   fetch() {
     this.error = null;
-    this.lastRating = null;
 
     if (this.form.invalid) return;
 
     const id = this.form.value.id!;
-    this.loading = true;
-
-    // ⬇️ URL vue dans tes DevTools : /api/products/1/rating/
-    this.http
-      .get<ProductRating>(`/api/products/${id}/rating/`)
-      .subscribe({
-        next: (res) => {
-          this.loading = false;
-          this.lastRating = res;
-        },
-        error: () => {
-          this.loading = false;
-          this.error = 'Aucune note trouvée pour cet ID.';
-        },
-      });
+    // on demande au store de charger la note
+    this.store.dispatch(P.loadRating({ id }));
   }
 }
-
 

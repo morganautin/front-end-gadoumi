@@ -1,74 +1,62 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { selectProducts, selectProductsCount, selectProductsLoading } from '../../state/products/products.selectors';
+import {
+  selectProducts,
+  selectProductsCount,
+  selectProductsLoading,
+} from '../../state/products/products.selectors';
 import * as P from '../../state/products/products.actions';
-import { AsyncPipe, NgFor, NgIf, CurrencyPipe, DatePipe } from '@angular/common';
+
+import * as CartActions from '../../shop/state/cart/cart.actions';
+ // ✅ IMPORT MANQUANT !!
+
+import {
+  AsyncPipe,
+  NgFor,
+  NgIf,
+  CurrencyPipe,
+  DatePipe,
+  DecimalPipe,
+} from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+interface ProductRating {
+  product_id: number;
+  avg_rating: number;
+  count: number;
+}
 
 @Component({
   standalone: true,
   selector: 'app-products-page',
   imports: [
-    ReactiveFormsModule, AsyncPipe, NgIf, NgFor,
-    CurrencyPipe, DatePipe,
-    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule
+    ReactiveFormsModule,
+    AsyncPipe,
+    NgIf,
+    NgFor,
+    CurrencyPipe,
+    DatePipe,
+    DecimalPipe,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    HttpClientModule,
   ],
-  template: `
-  <section class="space-y-4">
-    <form class="flex flex-wrap gap-3 items-end" [formGroup]="filters" (ngSubmit)="load()">
-      <mat-form-field appearance="outline">
-        <mat-label>Page</mat-label>
-        <input matInput type="number" formControlName="page">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Page size</mat-label>
-        <input matInput type="number" formControlName="pageSize">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Min rating</mat-label>
-        <input matInput type="number" formControlName="minRating">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Ordering</mat-label>
-        <mat-select formControlName="ordering">
-          <mat-option [value]="null">—</mat-option>
-          <mat-option value="price">price ↑</mat-option>
-          <mat-option value="-price">price ↓</mat-option>
-          <mat-option value="created_at">date ↑</mat-option>
-          <mat-option value="-created_at">date ↓</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" type="submit" [disabled]="loading$ | async">Charger</button>
-    </form>
-
-    <p *ngIf="(count$ | async) as c">Total: {{ c }}</p>
-    <p *ngIf="loading$ | async">Chargement…</p>
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <mat-card *ngFor="let p of (products$ | async)">
-        <mat-card-title>{{ p.name }}</mat-card-title>
-        <mat-card-content>
-          <div>Prix: {{ p.price | currency:'EUR' }}</div>
-          <div>Date: {{ p.created_at | date }}</div>
-          <div>Moyenne: {{ p.avg_rating ?? '—' }}</div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </section>
-  `,
+  templateUrl: './products.html',
+  styleUrls: ['./products.css'],
 })
-export class ProductsComponent {
+export class ProductsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private store = inject(Store);
+  private http = inject(HttpClient);
 
   filters = this.fb.group({
     page: 1,
@@ -81,16 +69,60 @@ export class ProductsComponent {
   count$ = this.store.select(selectProductsCount);
   loading$ = this.store.select(selectProductsLoading);
 
-  ngOnInit() { this.load(); } // charge au premier affichage
+  ratings: Record<number, { avg: number; count: number } | null> = {};
+
+  ngOnInit() {
+    this.load();
+
+    this.products$.subscribe((list) => {
+      if (!list) return;
+
+      for (const p of list) {
+        if (!p.id) continue;
+        if (this.ratings[p.id] !== undefined) continue;
+
+        this.http
+          .get<ProductRating>(`/api/products/${p.id}/rating/`)
+          .subscribe({
+            next: (res) => {
+              this.ratings[p.id] = {
+                avg: res.avg_rating,
+                count: res.count,
+              };
+            },
+            error: () => {
+              this.ratings[p.id] = null;
+            },
+          });
+      }
+    });
+  }
 
   load() {
     const v = this.filters.getRawValue();
-    this.store.dispatch(P.loadProducts({
-      page: v.page ?? 1,
-      pageSize: v.pageSize ?? 10,
-      minRating: v.minRating === null ? null : Number(v.minRating),
-      ordering: v.ordering || null,
-    }));
+    this.store.dispatch(
+      P.loadProducts({
+        page: v.page ?? 1,
+        pageSize: v.pageSize ?? 10,
+        minRating: v.minRating === null ? null : Number(v.minRating),
+        ordering: v.ordering || null,
+      }),
+    );
+  }
+
+  // 🛒 AJOUT AU PANIER (CORRECT NG-RX)
+  addToCart(p: any) {
+    console.log("🛒 Ajout au panier :", p);
+
+    this.store.dispatch(
+      CartActions.addToCart({
+        product: {
+          id: p.id,
+          name: p.name,
+          price: p.price,
+        },
+        quantity: 1,
+      })
+    );
   }
 }
-

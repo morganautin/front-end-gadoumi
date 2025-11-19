@@ -1,1 +1,27 @@
-<p>products works!</p>
+<div class="products-grid">
+  <mat-card *ngFor="let p of (products$ | async)" class="product-card">
+
+    <mat-card-title class="product-title">{{ p.name }}</mat-card-title>
+
+    <mat-card-content class="product-content">
+      <div>Prix: {{ p.price | currency : 'EUR' }}</div>
+      <div>Date: {{ p.created_at | date }}</div>
+
+      <div>
+        Moyenne :
+        <ng-container *ngIf="ratings[p.id]?.avg as avg; else noRating">
+          {{ avg | number : '1.1-2' }}/5
+          <span *ngIf="ratings[p.id]?.count as c"> ({{ c }} avis)</span>
+        </ng-container>
+        <ng-template #noRating>—</ng-template>
+      </div>
+
+      <!-- ⭐️ BOUTON AJOUTER AU PANIER -->
+      <button mat-raised-button color="accent" (click)="addToCart(p)">
+        🛒 Ajouter au panier
+      </button>
+    </mat-card-content>
+
+  </mat-card>
+</div>
+

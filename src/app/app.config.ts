@@ -14,11 +14,15 @@ import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
-// ⬇️ branche tes slices NgRx
+// ⬇️ slices NgRx existants
 import { authReducer } from './state/auth/auth.reducer';
 import { productsReducer } from './state/products/products.reducer';
 import { AuthEffects } from './state/auth/auth.effects';
 import { ProductsEffects } from './state/products/products.effects';
+
+// ⬇️ nouveau slice cart
+import { cartReducer } from './shop/state/cart/cart.reducer';
+import { CART_FEATURE_KEY } from './shop/state/cart/cart.selectors';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,7 +34,11 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
 
     // ⬇️ Enregistrement du store + effects
-    provideStore({ auth: authReducer, products: productsReducer }),
+    provideStore({
+      auth: authReducer,
+      products: productsReducer,
+      [CART_FEATURE_KEY]: cartReducer,
+    }),
     provideEffects([AuthEffects, ProductsEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],

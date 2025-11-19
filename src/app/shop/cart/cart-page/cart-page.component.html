@@ -1,0 +1,12 @@
+<div *ngIf="(items$ | async)?.length === 0">
+  Votre panier est vide.
+</div>
+
+<div *ngFor="let item of (items$ | async)" class="border p-3 mb-2 rounded">
+  <p>{{ item.name }}</p>
+  <p>{{ item.price }} €</p>
+</div>
+
+<div class="mt-4 font-bold">
+  Total : {{ total$ | async }} €
+</div>

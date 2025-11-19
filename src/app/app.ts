@@ -6,10 +6,18 @@ import {
   Router,
 } from '@angular/router';
 
+// 🔹 Import du composant standalone du panier
+import { CartIconComponent } from './shop/cart/cart-icon/cart-icon.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    CartIconComponent, // ⬅️ obligatoire pour éviter NG8001
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -19,7 +27,7 @@ export class App {
   constructor(private router: Router) {}
 
   logout() {
-    // Simplement retour à l'accueil
+    // Simple retour à l'accueil
     this.router.navigate(['/']);
   }
 }

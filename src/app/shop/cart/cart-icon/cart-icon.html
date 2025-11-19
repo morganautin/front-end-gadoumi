@@ -1,0 +1,9 @@
+<a routerLink="/shop/cart" class="relative flex items-center gap-2 cursor-pointer">
+  🛒
+  <span
+    *ngIf="count$ | async as count"
+    class="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 rounded-full"
+  >
+    {{ count }}
+  </span>
+</a>

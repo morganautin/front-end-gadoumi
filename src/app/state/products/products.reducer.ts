@@ -4,16 +4,18 @@ import * as P from './products.actions';
 export interface ProductsState {
   items: P.Product[];
   count: number;
-  lastQuery: {
-    page: number;
-    pageSize: number;
-    minRating: number | null;
-    ordering: string | null;
-  } | null;
+  lastQuery:
+    | {
+        page: number;
+        pageSize: number;
+        minRating: number | null;
+        ordering: string | null;
+      }
+    | null;
   loading: boolean;
   error: string | null;
 
-  // 👇 nouveau : dernier rating récupéré via /products/:id/rating/
+  // dernière note récupérée via /products/:id/rating/
   lastRating: {
     id: number;
     avg_rating: number;
@@ -33,7 +35,7 @@ export const initialProductsState: ProductsState = {
 export const productsReducer = createReducer(
   initialProductsState,
 
-  // chargement liste produits
+  // 🔹 chargement liste produits
   on(P.loadProducts, (s, q) => ({
     ...s,
     loading: true,
@@ -54,15 +56,15 @@ export const productsReducer = createReducer(
     error,
   })),
 
-  // 👇 chargement d'un rating (on peut aussi activer le spinner)
+  // 🔹 chargement d'une note (on peut réutiliser le même flag loading)
   on(P.loadRating, (s) => ({
     ...s,
     loading: true,
     error: null,
   })),
 
-  // rating optionnel : on stocke la dernière moyenne obtenue
-  // ET on met à jour l'item correspondant si présent dans la liste
+  // on stocke la dernière note +
+  // on met à jour le produit correspondant dans la liste
   on(P.loadRatingSuccess, (s, { id, avg_rating, count }) => ({
     ...s,
     loading: false,
