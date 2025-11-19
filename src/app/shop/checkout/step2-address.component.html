@@ -1,0 +1,23 @@
+<div class="checkout-wrapper">
+  <div class="checkout-card">
+
+    <h2 class="title">🏠 Adresse de livraison</h2>
+
+    <form class="form-container">
+      <label>Nom :</label>
+      <input [(ngModel)]="name" name="name" required />
+
+      <label>Adresse :</label>
+      <input [(ngModel)]="address" name="address" required />
+
+      <label>Ville :</label>
+      <input [(ngModel)]="city" name="city" required />
+
+      <!-- ⬇ ICI : on ne soumet plus le form, on clique juste -->
+      <button type="button" class="btn-validate" (click)="validateAddress()">
+        Valider l’adresse →
+      </button>
+    </form>
+
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="checkout-wrapper">
+  <div class="checkout-card">
+
+    <h2 class="title">🎉 Commande confirmée !</h2>
+
+    <div class="summary">
+      <p><strong>Nom :</strong> {{ address.name }}</p>
+      <p><strong>Adresse :</strong> {{ address.address }}</p>
+      <p><strong>Ville :</strong> {{ address.city }}</p>
+    </div>
+
+    <button class="btn-back" (click)="backHome()">
+      Retour à l'accueil
+    </button>
+
+  </div>
+</div>

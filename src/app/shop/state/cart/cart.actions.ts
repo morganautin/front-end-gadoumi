@@ -14,3 +14,9 @@ export const removeFromCart = createAction(
 
 // Vider le panier
 export const clearCart = createAction('[Cart] Clear Cart');
+
+// Mettre à jour la quantité d’un produit
+export const updateQuantity = createAction(
+  '[Cart] Update Quantity',
+  props<{ productId: number; quantity: number }>()
+);

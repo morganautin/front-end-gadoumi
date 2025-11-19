@@ -1,12 +1,40 @@
-<div *ngIf="(items$ | async)?.length === 0">
-  Votre panier est vide.
-</div>
+<div class="cart-container">
 
-<div *ngFor="let item of (items$ | async)" class="border p-3 mb-2 rounded">
-  <p>{{ item.name }}</p>
-  <p>{{ item.price }} €</p>
-</div>
+  <h2 class="cart-title">Votre panier</h2>
 
-<div class="mt-4 font-bold">
-  Total : {{ total$ | async }} €
+  <div *ngIf="(items$ | async)?.length === 0" class="cart-empty">
+    Votre panier est vide.
+  </div>
+
+  <div *ngFor="let item of (items$ | async)" class="cart-item">
+    
+    <div class="cart-item-header">
+      <div class="cart-name">{{ item.name }}</div>
+      <div class="cart-price">{{ item.price }} €</div>
+    </div>
+
+    <div class="cart-actions">
+
+      <button class="qty-btn" (click)="decrease(item)">−</button>
+
+      <span class="qty-number">{{ item.quantity }}</span>
+
+      <button class="qty-btn" (click)="increase(item)">+</button>
+
+      <button class="delete-btn" (click)="remove(item)">
+        ❌ Supprimer
+      </button>
+
+    </div>
+  </div>
+
+  <div class="cart-total">
+    Total : {{ total$ | async }} €
+  </div>
+
+<button class="checkout-btn" (click)="goToCheckout()">
+  🛒 Valider la commande
+</button>
+
+
 </div>

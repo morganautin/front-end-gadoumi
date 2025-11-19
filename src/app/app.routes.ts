@@ -13,7 +13,6 @@ import { LoginComponent } from './pages/login/login.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { RatingComponent } from './pages/rating/rating.component';
 
-// 🔹 Page Panier (lazy import car standalone)
 export const routes: Routes = [
   // ----------------------------------------------------
   // 🔹 ROUTES PRINCIPALES
@@ -35,13 +34,43 @@ export const routes: Routes = [
   { path: 'shop/products', component: ProductsComponent },
   { path: 'shop/rating', component: RatingComponent },
 
-  // 🛒 ROUTE DU PANIER (standalone → lazy load)
+  // 🛒 ROUTE DU PANIER (lazy load)
   {
     path: 'shop/cart',
     loadComponent: () =>
       import('./shop/cart/cart-page/cart-page.component').then(
         (m) => m.CartPageComponent
       ),
+  },
+
+  // ----------------------------------------------------
+  // 🔹 CHECKOUT (STEP 1 → STEP 2 → STEP 3)
+  // ----------------------------------------------------
+  {
+    path: 'shop/checkout',
+    children: [
+      {
+        path: 'step1',
+        loadComponent: () =>
+          import('./shop/checkout/step1-summary.component').then(
+            (m) => m.Step1SummaryComponent
+          ),
+      },
+      {
+        path: 'step2',
+        loadComponent: () =>
+          import('./shop/checkout/step2-address.component').then(
+            (m) => m.Step2AddressComponent
+          ),
+      },
+      {
+        path: 'step3',
+        loadComponent: () =>
+          import('./shop/checkout/step3-confirm.component').then(
+            (m) => m.Step3ConfirmComponent
+          ),
+      },
+    ],
   },
 
   // ----------------------------------------------------

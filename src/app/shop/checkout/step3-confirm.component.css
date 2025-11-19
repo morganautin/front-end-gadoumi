@@ -1,0 +1,49 @@
+.checkout-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.checkout-card {
+  width: 450px;
+  background: #fff;
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.summary p {
+  font-size: 17px;
+  margin: 8px 0;
+}
+
+.btn-back {
+  width: 100%;
+  padding: 14px;
+  margin-top: 25px;
+  background: #007bff;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.btn-back:hover {
+  background: #005fc4;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

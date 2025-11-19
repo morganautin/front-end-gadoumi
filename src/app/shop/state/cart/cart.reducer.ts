@@ -1,77 +1,108 @@
 import { createReducer, on } from '@ngrx/store';
-import { CartState, initialCartState, CartItem } from './cart.models';
 import * as CartActions from './cart.actions';
+import { CartState, CartItem, initialCartState } from './cart.models';
 
+/* ----------------------------------------
+   🔄 Charger l'état du panier depuis localStorage
+-----------------------------------------*/
+function loadCartFromStorage(): CartState {
+  try {
+    const saved = localStorage.getItem("cart");
+    return saved ? JSON.parse(saved) : initialCartState;
+  } catch {
+    return initialCartState;
+  }
+}
+
+/* ----------------------------------------
+   💾 Sauvegarder dans localStorage
+-----------------------------------------*/
+function saveCartState(state: CartState) {
+  try {
+    localStorage.setItem("cart", JSON.stringify(state));
+  } catch {}
+}
+
+/* ----------------------------------------
+   🧮 Recalculer total & quantité
+-----------------------------------------*/
+function computeTotals(items: CartItem[]) {
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  return { totalPrice, count };
+}
+
+/* ----------------------------------------
+   🧠 REDUCER NG-RX AVEC PERSISTENCE
+-----------------------------------------*/
 export const cartReducer = createReducer(
-  initialCartState,
 
-  // ➕ Ajouter un produit au panier
+  // 🔥 On démarre avec l’état du localStorage
+  loadCartFromStorage(),
+
+  // ➕ Ajouter au panier
   on(CartActions.addToCart, (state, { product, quantity }) => {
-    const existing = state.items.find((item) => item.id === product.id);
+    const existing = state.items.find(i => i.id === product.id);
 
-    let updatedItems: CartItem[];
+    let items: CartItem[];
 
     if (existing) {
-      // produit déjà dans le panier → on augmente la quantité
-      updatedItems = state.items.map((item) =>
+      items = state.items.map(item =>
         item.id === product.id
-          ? {
-              ...item,
-              quantity: item.quantity + quantity,
-            }
+          ? { ...item, quantity: item.quantity + quantity }
           : item
       );
     } else {
-      // nouveau produit → on l'ajoute
-      const newItem: CartItem = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: quantity,
-      };
-
-      updatedItems = [...state.items, newItem];
+      items = [
+        ...state.items,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity
+        }
+      ];
     }
 
-    // recalcul total
-    const totalPrice = updatedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    const totals = computeTotals(items);
+    const newState = { ...state, items, ...totals };
 
-    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    return {
-      ...state,
-      items: updatedItems,
-      totalPrice,
-      count,
-    };
+    saveCartState(newState);
+    return newState;
   }),
 
-  // 🗑️ Supprimer un produit
+  // ➖ Mettre à jour la quantité
+  on(CartActions.updateQuantity, (state, { productId, quantity }) => {
+    let items = state.items.map(item =>
+      item.id === productId ? { ...item, quantity } : item
+    );
+
+    items = items.filter(i => i.quantity > 0);
+
+    const totals = computeTotals(items);
+    const newState = { ...state, items, ...totals };
+
+    saveCartState(newState);
+    return newState;
+  }),
+
+  // 🗑 Supprimer un produit
   on(CartActions.removeFromCart, (state, { productId }) => {
-    const updatedItems = state.items.filter((item) => item.id !== productId);
+    const items = state.items.filter(item => item.id !== productId);
+    const totals = computeTotals(items);
 
-    const totalPrice = updatedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    const newState = { ...state, items, ...totals };
 
-    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    return {
-      ...state,
-      items: updatedItems,
-      totalPrice,
-      count,
-    };
+    saveCartState(newState);
+    return newState;
   }),
 
-  // 🧹 Vider le panier
-  on(CartActions.clearCart, () => ({
-    items: [],
-    totalPrice: 0,
-    count: 0,
-  }))
+  // 🔄 Vider le panier
+  on(CartActions.clearCart, () => {
+    saveCartState(initialCartState);
+    return { ...initialCartState };
+  })
 );

@@ -1,0 +1,21 @@
+<h2>🛒 Résumé du panier</h2>
+
+<div class="cart-container" *ngIf="items$ | async as items">
+  <div class="cart-item" *ngFor="let item of items">
+    <div class="item-name">
+      <strong>{{ item.name }}</strong>
+    </div>
+
+    <div class="item-details">
+      {{ item.quantity }} × {{ item.price }} €
+    </div>
+  </div>
+</div>
+
+<div class="cart-total" *ngIf="total$ | async as total">
+  <strong>Total : {{ total }} €</strong>
+</div>
+
+<button class="btn-continue" (click)="goToAddress()">
+  Continuer →
+</button>
