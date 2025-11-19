@@ -36,7 +36,9 @@ export class LoginFormComponent {
 
   submit() {
     if (this.form.valid) {
-      this.submitForm.emit(this.form.value);
+      this.submitForm.emit(
+        this.form.getRawValue() as { username: string; password: string }
+      );
     }
   }
 }
