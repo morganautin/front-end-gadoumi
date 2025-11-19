@@ -1,1 +1,35 @@
-<p>rating works!</p>
+<div class="rating-wrapper">
+  <mat-card class="rating-card">
+    <h2 class="rating-title">Avis produit</h2>
+    <p class="rating-subtitle">
+      Saisissez l'ID d'un produit pour consulter sa note moyenne.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="fetch()" class="rating-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>ID du produit</mat-label>
+        <input matInput type="number" formControlName="id" />
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit">
+          Get rating
+        </button>
+      </div>
+    </form>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <ng-container *ngIf="lastRating">
+      <div class="result">
+        <h3 class="result-title">Résultat</h3>
+        <p>
+          Produit #{{ lastRating.product_id }}<br />
+          Note moyenne :
+          <strong>{{ lastRating.avg_rating | number : '1.1-2' }}/5</strong><br />
+          Nombre d'avis : {{ lastRating.count }}
+        </p>
+      </div>
+    </ng-container>
+  </mat-card>
+</div>

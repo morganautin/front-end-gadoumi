@@ -1,6 +1,21 @@
-<header class="p-4 border-b">
-  <strong>My Shop</strong>
+<header class="p-4 border-b flex justify-between items-center">
+  <strong>My shopppp</strong>
+
+  <nav class="flex gap-3">
+    <a routerLink="/login" class="px-3 py-2 border rounded hover:bg-gray-50">Login</a>
+    <a routerLink="/shop/products" class="px-3 py-2 border rounded hover:bg-gray-50">Produits</a>
+    <a routerLink="/shop/rating" class="px-3 py-2 border rounded hover:bg-gray-50">Avis</a>
+
+    <!-- 🔹 Bouton Déconnexion -->
+    <button
+      class="px-3 py-2 border rounded hover:bg-gray-100"
+      (click)="logout()"
+    >
+      🔓 Déconnexion
+    </button>
+  </nav>
 </header>
+
 <main class="p-4">
   <router-outlet></router-outlet>
 </main>
