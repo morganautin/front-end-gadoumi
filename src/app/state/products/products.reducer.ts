@@ -14,6 +14,7 @@ export interface ProductsState {
     | null;
   loading: boolean;
   error: string | null;
+  selectedProduct: P.Product | null; // Ajout pour le produit sélectionné
 
   // dernière note récupérée via /products/:id/rating/
   lastRating: {
@@ -29,6 +30,7 @@ export const initialProductsState: ProductsState = {
   lastQuery: null,
   loading: false,
   error: null,
+  selectedProduct: null,
   lastRating: null,
 };
 
@@ -78,5 +80,13 @@ export const productsReducer = createReducer(
     ...s,
     loading: false,
     error,
-  }))
+  })),
+
+  // 🔹 Chargement d'un produit unique
+  on(P.loadProduct, (s) => ({ ...s, loading: true, error: null, selectedProduct: null })),
+
+  on(P.loadProductSuccess, (s, { product }) => ({ ...s, loading: false, selectedProduct: product })),
+
+  on(P.loadProductFailure, (s, { error }) => ({ ...s, loading: false, error })),
+
 );

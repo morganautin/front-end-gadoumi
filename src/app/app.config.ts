@@ -20,23 +20,11 @@ import { authReducer } from './state/auth/auth.reducer';
 import { productsReducer } from './state/products/products.reducer';
 import { AuthEffects } from './state/auth/auth.effects';
 import { ProductsEffects } from './state/products/products.effects';
+import { UserEffects } from './pages/account/profile/user.effects';
 
 // cart
 import { cartReducer } from './shop/state/cart/cart.reducer';
 import { CART_FEATURE_KEY } from './shop/state/cart/cart.selectors';
-import { initialCartState } from './shop/state/cart/cart.models';
-
-
-/* 🔐 Charger le panier depuis localStorage */
-export function loadCartFromStorage() {
-  try {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : initialCartState;
-  } catch {
-    return initialCartState;
-  }
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -52,17 +40,15 @@ export const appConfig: ApplicationConfig = {
       products: productsReducer
     }),
 
-    // 🟦 Charger l'état du panier AU DÉMARRAGE
-    provideState(CART_FEATURE_KEY, loadCartFromStorage()),
-
-    // 🟦 Attacher ensuite le reducer du panier
+    // 🟦 Enregistrer le state et le reducer du panier.
+    // Le reducer se charge lui-même de lire le localStorage à l'initialisation.
     provideState(CART_FEATURE_KEY, cartReducer),
 
     provideEffects([
       AuthEffects,
-      ProductsEffects
+      ProductsEffects,
+      UserEffects, // Ajout de UserEffects
     ]),
-
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),

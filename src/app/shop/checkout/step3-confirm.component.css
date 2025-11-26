@@ -25,7 +25,7 @@
   margin: 8px 0;
 }
 
-.btn-back {
+.btn-confirm {
   width: 100%;
   padding: 14px;
   margin-top: 25px;
@@ -39,7 +39,7 @@
   transition: 0.25s;
 }
 
-.btn-back:hover {
+.btn-confirm:hover {
   background: #005fc4;
 }
 

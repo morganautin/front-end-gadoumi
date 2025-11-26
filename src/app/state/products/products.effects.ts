@@ -69,4 +69,17 @@ export class ProductsEffects {
       )
     )
   );
+
+  // 🔹 Détail d'un produit
+  loadProduct$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(P.loadProduct),
+      switchMap(({ id }) =>
+        this.http.get<P.Product>(`${environment.apiBaseUrl}products/${id}/`).pipe(
+          map((product) => P.loadProductSuccess({ product })),
+          catchError(() => of(P.loadProductFailure({ error: 'Product fetch failed' })))
+        )
+      )
+    )
+  );
 }

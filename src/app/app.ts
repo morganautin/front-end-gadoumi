@@ -1,13 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import {
   RouterOutlet,
   RouterLink,
-  RouterLinkActive,
   Router,
 } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AsyncPipe } from '@angular/common';
 
 // 🔹 Import du composant standalone du panier
 import { CartIconComponent } from './shop/cart/cart-icon/cart-icon.component';
+import { selectIsLoggedIn } from './state/auth/auth.selectors';
+import * as AuthActions from './state/auth/auth.actions';
 
 @Component({
   selector: 'app-root',
@@ -15,19 +18,23 @@ import { CartIconComponent } from './shop/cart/cart-icon/cart-icon.component';
   imports: [
     RouterOutlet,
     RouterLink,
-    RouterLinkActive,
-    CartIconComponent, // ⬅️ obligatoire pour éviter NG8001
+    CartIconComponent,
+    AsyncPipe,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   protected readonly title = signal('my-shop');
+  private store = inject(Store);
+  private router = inject(Router);
 
-  constructor(private router: Router) {}
+  isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
   logout() {
-    // Simple retour à l'accueil
-    this.router.navigate(['/']);
+    // On déclenche l'action de déconnexion pour nettoyer l'état et le localStorage
+    this.store.dispatch(AuthActions.logout());
+    // On redirige l'utilisateur vers la page de connexion
+    this.router.navigate(['/login']);
   }
 }

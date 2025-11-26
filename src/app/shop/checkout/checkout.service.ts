@@ -11,4 +11,12 @@ export class CheckoutService {
   getAddress() {
     return this.address;
   }
+
+  createOrder(orderData: any) {
+    return fetch('/api/orders/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+  }
 }

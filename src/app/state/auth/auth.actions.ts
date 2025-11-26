@@ -6,3 +6,6 @@ export const loginFailure = createAction('[Auth] loginFailure', props<{ error: s
 
 export const refreshToken = createAction('[Auth] refreshToken', props<{ refresh: string }>());
 export const refreshSuccess = createAction('[Auth] refreshSuccess', props<{ access: string }>());
+
+// Action pour la déconnexion
+export const logout = createAction('[Auth] Logout');

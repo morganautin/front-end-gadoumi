@@ -2,6 +2,7 @@
 import { http, HttpResponse } from 'msw';
 import { products } from './data';
 import { paginate, avgRating } from './utils';
+import { userHandlers } from './user-handlers';
 
 const API = '/api';
 
@@ -53,4 +54,7 @@ export const handlers = [
       { status: 200 },
     );
   }),
+
+  // On ajoute les handlers pour l'utilisateur
+  ...userHandlers,
 ];

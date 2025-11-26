@@ -4,7 +4,7 @@ export interface Product {
   id: number;
   name: string;
   price: number;
-  created_at: string;
+  created_at?: string;
   avg_rating?: number;
 }
 
@@ -43,3 +43,8 @@ export const loadRatingFailure = createAction(
   '[Products] loadRatingFailure',
   props<{ error: string }>()
 );
+
+// 🔹 Chargement d'un produit unique
+export const loadProduct = createAction('[Products] Load Product', props<{ id: string }>());
+export const loadProductSuccess = createAction('[Products] Load Product Success', props<{ product: Product }>());
+export const loadProductFailure = createAction('[Products] Load Product Failure', props<{ error: string }>());

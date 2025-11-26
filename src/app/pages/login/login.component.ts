@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,9 +11,9 @@ import {
   selectAuthLoading,
   selectIsLoggedIn,
 } from '../../state/auth/auth.selectors';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe, NgIf, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { filter, take } from 'rxjs';
+import { filter, take, Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -24,8 +24,7 @@ import { filter, take } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    AsyncPipe,
-    NgIf,
+    CommonModule, // Inclut AsyncPipe et NgIf
   ],
   template: `
     <div class="login-wrapper">
@@ -76,6 +75,24 @@ export class LoginComponent {
   error$ = this.store.select(selectAuthError);
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
+  private isLoggedInSubscription: Subscription | undefined;
+
+  ngOnInit() {
+    // ✅ On met en place l'écoute pour la redirection UNE SEULE FOIS, à la création du composant.
+    this.isLoggedInSubscription = this.isLoggedIn$
+      .pipe(
+        filter((logged) => !!logged), // On ne s'intéresse qu'au passage à `true`
+        take(1) // On s'assure que la redirection n'arrive qu'une fois
+      )
+      .subscribe(() => {
+        this.router.navigate(['/shop/products']);
+      });
+  }
+
+  ngOnDestroy() {
+    this.isLoggedInSubscription?.unsubscribe();
+  }
+
   submit() {
     if (this.form.invalid) return;
 
@@ -93,16 +110,5 @@ export class LoginComponent {
     this.store.dispatch(
       Auth.login({ username: username!, password: password! })
     );
-
-    // Et on redirige vers /shop/products quand isLoggedIn passe à true
-    this.isLoggedIn$
-      .pipe(
-        filter((logged) => !!logged),
-        take(1)
-      )
-      .subscribe(() => {
-        this.router.navigate(['/shop/products']);
-      });
   }
 }
-

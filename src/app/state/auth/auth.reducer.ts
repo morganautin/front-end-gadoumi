@@ -22,4 +22,9 @@ export const authReducer = createReducer(
   on(Auth.loginFailure, (s, { error }) => ({ ...s, loading: false, error })),
   on(Auth.refreshToken, s => ({ ...s, loading: true })),
   on(Auth.refreshSuccess, (s, { access }) => ({ ...s, loading: false, access })),
+
+  // 👇 Gérer la déconnexion en réinitialisant l'état
+  on(Auth.logout, (state) => ({
+    ...initialAuthState
+  }))
 );

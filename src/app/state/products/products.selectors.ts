@@ -34,3 +34,9 @@ export const selectLastRating = createSelector(
   selectProductsState,
   (s) => s.lastRating
 );
+
+// 🔹 Sélection du produit actuellement chargé
+export const selectSelectedProduct = createSelector(
+  selectProductsState,
+  (s) => s.selectedProduct
+);
