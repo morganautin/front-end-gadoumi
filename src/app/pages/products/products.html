@@ -16,12 +16,19 @@
         <ng-template #noRating>—</ng-template>
       </div>
 
-      <!-- ⭐️ BOUTON AJOUTER AU PANIER -->
-      <button mat-raised-button color="accent" (click)="addToCart(p)">
-        🛒 Ajouter au panier
-      </button>
     </mat-card-content>
+    <mat-card-actions>
+        <!-- ❤️ BOUTON AJOUTER AUX FAVORIS -->
+        <button mat-icon-button (click)="toggleFavorite(p)" [attr.aria-label]="isFavorite(p.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+            <mat-icon [color]="isFavorite(p.id) ? 'warn' : 'basic'">
+              {{ isFavorite(p.id) ? 'favorite' : 'favorite_border' }}
+            </mat-icon>
+        </button>
+        <!-- ⭐️ BOUTON AJOUTER AU PANIER -->
+        <button mat-raised-button color="accent" (click)="addToCart(p)">
+            🛒 Ajouter au panier
+        </button>
+    </mat-card-actions>
 
   </mat-card>
 </div>
-

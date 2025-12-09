@@ -21,6 +21,8 @@ import { productsReducer } from './state/products/products.reducer';
 import { AuthEffects } from './state/auth/auth.effects';
 import { ProductsEffects } from './state/products/products.effects';
 import { UserEffects } from './pages/account/profile/user.effects';
+import { favoritesFeatureKey, favoritesReducer } from './state/products/favorites.reducer';
+import { USER_FEATURE } from './pages/account/profile/user.state';
 
 // cart
 import { cartReducer } from './shop/state/cart/cart.reducer';
@@ -43,6 +45,12 @@ export const appConfig: ApplicationConfig = {
     // 🟦 Enregistrer le state et le reducer du panier.
     // Le reducer se charge lui-même de lire le localStorage à l'initialisation.
     provideState(CART_FEATURE_KEY, cartReducer),
+
+    // 🟦 Enregistrer le state et le reducer des favoris.
+    provideState(favoritesFeatureKey, favoritesReducer),
+
+    // 🟦 Enregistrer le state et le reducer de l'utilisateur (qui contient les commandes).
+    provideState(USER_FEATURE.name, USER_FEATURE.reducer),
 
     provideEffects([
       AuthEffects,

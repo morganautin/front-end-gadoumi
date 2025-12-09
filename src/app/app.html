@@ -3,6 +3,14 @@
 
   <nav class="flex gap-3 items-center">
     <a routerLink="/shop/products" class="px-3 py-2 border rounded hover:bg-gray-50">Produits</a>
+    <!-- ❤️ Lien vers les favoris avec compteur -->
+    <a routerLink="/favorites" class="px-3 py-2 border rounded hover:bg-gray-50 flex items-center gap-1">
+      <mat-icon>favorite</mat-icon>
+      <span>Favoris</span>
+      @if (favoritesCount$ | async; as count) {
+        @if(count > 0) { <span class="bg-red-500 text-white rounded-full text-xs px-2 py-0.5">{{ count }}</span> }
+      }
+    </a>
     <a routerLink="/reviews" class="px-3 py-2 border rounded hover:bg-gray-50">Avis</a>
 
     <!-- Liens conditionnels basés sur l'état de connexion -->
@@ -19,9 +27,9 @@
     }
 
     <!-- 🔹 Icône du panier cliquable -->
-    <div class="px-3 py-2 border rounded hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
+    <a routerLink="/shop/cart" class="px-3 py-2 border rounded hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
         <app-cart-icon></app-cart-icon>
-    </div>
+    </a>
   </nav>
 </header>
 

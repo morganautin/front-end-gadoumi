@@ -6,10 +6,12 @@ import {
   selectProductsCount,
   selectProductsLoading,
 } from '../../state/products/products.selectors';
+import { selectFavoriteProducts } from '../../state/products/favorites.selectors';
+import { Product } from '../../state/products/products.actions'; // Assurez-vous que l'interface Product est exportée ici ou ajustez le chemin
 import * as P from '../../state/products/products.actions';
 
 import * as CartActions from '../../shop/state/cart/cart.actions';
- // ✅ IMPORT MANQUANT !!
+import * as FavoritesActions from '../../state/products/favorites.actions';
 
 import {
   AsyncPipe,
@@ -24,6 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 interface ProductRating {
@@ -48,6 +51,7 @@ interface ProductRating {
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
+    MatIconModule,
     HttpClientModule,
   ],
   templateUrl: './products.html',
@@ -69,12 +73,16 @@ export class ProductsComponent implements OnInit {
   count$ = this.store.select(selectProductsCount);
   loading$ = this.store.select(selectProductsLoading);
 
+  favoriteProducts: Product[] = [];
   ratings: Record<number, { avg: number; count: number } | null> = {};
 
   ngOnInit() {
     this.load();
 
-    this.products$.subscribe((list) => {
+    // On s'abonne aux favoris pour savoir lesquels afficher avec un coeur plein
+    this.store.select(selectFavoriteProducts).subscribe(favs => this.favoriteProducts = favs);
+
+    this.products$.subscribe((list: Product[]) => {
       if (!list) return;
 
       for (const p of list) {
@@ -111,7 +119,7 @@ export class ProductsComponent implements OnInit {
   }
 
   // 🛒 AJOUT AU PANIER (CORRECT NG-RX)
-  addToCart(p: any) {
+  addToCart(p: Product) { // Spécifier le type de 'p'
     console.log("🛒 Ajout au panier :", p);
 
     this.store.dispatch(
@@ -124,5 +132,20 @@ export class ProductsComponent implements OnInit {
         quantity: 1,
       })
     );
+  }
+
+  // ❤️ GESTION DES FAVORIS (AJOUT/RETRAIT)
+  toggleFavorite(p: Product) {
+    if (this.isFavorite(p.id)) {
+      console.log('💔 Retrait des favoris :', p);
+      this.store.dispatch(FavoritesActions.removeFromFavorites({ productId: p.id }));
+    } else {
+      console.log('❤️ Ajout aux favoris :', p);
+      this.store.dispatch(FavoritesActions.addToFavorites({ product: p }));
+    }
+  }
+
+  isFavorite(productId: number): boolean {
+    return this.favoriteProducts.some(p => p.id === productId);
   }
 }

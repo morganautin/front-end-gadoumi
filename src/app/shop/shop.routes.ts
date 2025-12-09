@@ -13,8 +13,8 @@ export const SHOP_ROUTES: Routes = [
   },
   {
     path: 'cart',
-    // Le chemin correct vers le composant du panier
-    loadComponent: () => import('./cart/cart-page/cart-page.component').then(m => m.CartPageComponent),
+    // C'est la première étape du processus de paiement, qui sert de résumé du panier.
+    loadComponent: () => import('./checkout/step1-summary.component').then(m => m.Step1SummaryComponent),
   },
   {
     path: 'checkout',

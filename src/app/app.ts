@@ -1,40 +1,35 @@
-import { Component, signal, inject } from '@angular/core';
-import {
-  RouterOutlet,
-  RouterLink,
-  Router,
-} from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AsyncPipe } from '@angular/common';
-
-// 🔹 Import du composant standalone du panier
-import { CartIconComponent } from './shop/cart/cart-icon/cart-icon.component';
 import { selectIsLoggedIn } from './state/auth/auth.selectors';
 import * as AuthActions from './state/auth/auth.actions';
+import { selectFavoritesCount } from './state/products/favorites.selectors';
+
+// Imports pour le template
+import { MatIconModule } from '@angular/material/icon';
+import { AsyncPipe } from '@angular/common';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { CartIconComponent } from './shop/cart/cart-icon/cart-icon.component';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-root', // Le sélecteur utilisé dans index.html
   standalone: true,
+  // On importe ici tout ce qui est utilisé dans app.html
   imports: [
     RouterOutlet,
     RouterLink,
-    CartIconComponent,
     AsyncPipe,
+    MatIconModule,
+    CartIconComponent
   ],
   templateUrl: './app.html',
-  styleUrl: './app.css',
 })
-export class App {
-  protected readonly title = signal('my-shop');
+export class App { // Le nom de la classe est 'App' comme indiqué dans les erreurs
   private store = inject(Store);
-  private router = inject(Router);
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
+  favoritesCount$ = this.store.select(selectFavoritesCount); // <-- La propriété manquante
 
   logout() {
-    // On déclenche l'action de déconnexion pour nettoyer l'état et le localStorage
     this.store.dispatch(AuthActions.logout());
-    // On redirige l'utilisateur vers la page de connexion
-    this.router.navigate(['/login']);
   }
 }

@@ -7,13 +7,13 @@
     </div>
 
     <div class="item-details">
-      {{ item.quantity }} × {{ item.price }} €
+      {{ item.quantity }} × {{ item.price | currency:'EUR' }}
     </div>
   </div>
 </div>
 
 <div class="cart-total" *ngIf="total$ | async as total">
-  <strong>Total : {{ total }} €</strong>
+  <strong>Total : {{ total | currency:'EUR' }}</strong>
 </div>
 
 <button class="btn-continue" (click)="goToAddress()">

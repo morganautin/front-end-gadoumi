@@ -1,36 +1,34 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-
-import { CartItem } from '../state/cart/cart.models';
-import * as CartSelectors from '../state/cart/cart.selectors';
-
+import { Store } from '@ngrx/store';
+import { selectCartItems, selectCartTotal } from '../state/cart/cart.selectors';
+import { AsyncPipe, CurrencyPipe, NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-step1-summary',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    NgIf,
+    NgFor,
+    AsyncPipe,
+    CurrencyPipe
+  ],
   templateUrl: './step1-summary.component.html',
-  styleUrls: ['./step1-summary.component.css'],
+  styleUrls: ['./step1-summary.component.css'] // J'ai ajouté un fichier CSS pour le style
 })
 export class Step1SummaryComponent {
+  private store = inject(Store);
+  private router = inject(Router);
 
-  // ❗ Déclaration simple, PAS D’INITIALISATION
-  items$!: Observable<CartItem[]>;
-  total$!: Observable<number>;
+  // On récupère les données du panier depuis le store NgRx
+  items$ = this.store.select(selectCartItems);
+  total$ = this.store.select(selectCartTotal);
 
-  constructor(
-    private store: Store,
-    private router: Router
-  ) {
-    // ❗ Initialisation APRES injection du store
-    this.items$ = this.store.select(CartSelectors.selectCartItems);
-    this.total$ = this.store.select(CartSelectors.selectCartTotal);
-  }
-
+  /**
+   * Navigue vers la prochaine étape du checkout (l'adresse).
+   */
   goToAddress() {
+    // Le chemin complet est /shop (défini dans app.routes) + /checkout (défini dans shop.routes) + /step2 (défini dans checkout.routes)
     this.router.navigate(['/shop/checkout/step2']);
   }
 }
