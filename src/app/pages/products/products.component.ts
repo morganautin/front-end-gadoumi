@@ -7,7 +7,7 @@ import {
   selectProductsLoading,
 } from '../../state/products/products.selectors';
 import { selectFavoriteProducts } from '../../state/products/favorites.selectors';
-import { Product } from '../../state/products/products.actions'; // Assurez-vous que l'interface Product est exportée ici ou ajustez le chemin
+import { Product } from '../../state/products/products.actions';
 import * as P from '../../state/products/products.actions';
 
 import * as CartActions from '../../shop/state/cart/cart.actions';
@@ -23,11 +23,12 @@ import {
 } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface ProductRating {
   product_id: number;
@@ -48,7 +49,6 @@ interface ProductRating {
     DecimalPipe,
     MatCardModule,
     MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatSelectModule,
     MatIconModule,
@@ -61,10 +61,12 @@ export class ProductsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private store = inject(Store);
   private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   filters = this.fb.group({
     page: 1,
-    pageSize: 10,
+    pageSize: 6,
     minRating: null as number | null,
     ordering: null as string | null,
   });
@@ -77,17 +79,48 @@ export class ProductsComponent implements OnInit {
   ratings: Record<number, { avg: number; count: number } | null> = {};
 
   ngOnInit() {
-    this.load();
+    /**
+     * 1️⃣ Restaurer l’état depuis l’URL
+     * (chargement initial + Back / Forward)
+     */
+    this.route.queryParamMap.subscribe((params) => {
+      const page = Number(params.get('page') ?? 1);
+      const pageSize = Number(params.get('pageSize') ?? 6);
 
-    // On s'abonne aux favoris pour savoir lesquels afficher avec un coeur plein
-    this.store.select(selectFavoriteProducts).subscribe(favs => this.favoriteProducts = favs);
+      const minRatingParam = params.get('minRating');
+      const minRating =
+        minRatingParam === null ? null : Number(minRatingParam);
 
+      const ordering = params.get('ordering');
+
+      this.filters.patchValue(
+        {
+          page,
+          pageSize,
+          minRating: Number.isNaN(minRating) ? null : minRating,
+          ordering: ordering ? ordering : null,
+        },
+        { emitEvent: false }
+      );
+
+      this.load();
+    });
+
+    /**
+     * Favoris
+     */
+    this.store
+      .select(selectFavoriteProducts)
+      .subscribe((favs) => (this.favoriteProducts = favs));
+
+    /**
+     * Ratings produits
+     */
     this.products$.subscribe((list: Product[]) => {
       if (!list) return;
 
       for (const p of list) {
-        if (!p.id) continue;
-        if (this.ratings[p.id] !== undefined) continue;
+        if (!p.id || this.ratings[p.id] !== undefined) continue;
 
         this.http
           .get<ProductRating>(`/api/products/${p.id}/rating/`)
@@ -106,22 +139,84 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  /**
+   * 🔄 Filtres modifiés
+   */
+  onFiltersChange() {
+    this.filters.patchValue({ page: 1 }, { emitEvent: false });
+    this.syncUrlFromFilters();
+    this.load();
+  }
+
+  /**
+   * 🔗 Synchronisation URL ← filtres
+   */
+  syncUrlFromFilters() {
+    const v = this.filters.getRawValue();
+
+    const queryParams: any = {
+      page: v.page,
+      pageSize: v.pageSize,
+    };
+
+    if (v.minRating !== null) queryParams.minRating = v.minRating;
+    if (v.ordering) queryParams.ordering = v.ordering;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: '',
+    });
+  }
+
+  /**
+   * 📦 Chargement produits
+   */
   load() {
     const v = this.filters.getRawValue();
+
     this.store.dispatch(
       P.loadProducts({
-        page: v.page ?? 1,
-        pageSize: v.pageSize ?? 10,
-        minRating: v.minRating === null ? null : Number(v.minRating),
-        ordering: v.ordering || null,
-      }),
+        page: v.page!,
+        pageSize: v.pageSize!,
+        minRating: v.minRating,
+        ordering: v.ordering,
+      })
     );
   }
 
-  // 🛒 AJOUT AU PANIER (CORRECT NG-RX)
-  addToCart(p: Product) { // Spécifier le type de 'p'
-    console.log("🛒 Ajout au panier :", p);
+  /**
+   * 📄 Pagination
+   */
+  nextPage(total: number) {
+    const maxPage = this.getTotalPages(total);
+    const current = this.filters.value.page!;
 
+    if (current < maxPage) {
+      this.filters.patchValue({ page: current + 1 });
+      this.syncUrlFromFilters();
+      this.load();
+    }
+  }
+
+  previousPage() {
+    const current = this.filters.value.page!;
+
+    if (current > 1) {
+      this.filters.patchValue({ page: current - 1 });
+      this.syncUrlFromFilters();
+      this.load();
+    }
+  }
+
+  getTotalPages(total: number): number {
+    return Math.ceil(total / this.filters.value.pageSize!);
+  }
+
+  /**
+   * 🛒 Panier
+   */
+  addToCart(p: Product) {
     this.store.dispatch(
       CartActions.addToCart({
         product: {
@@ -134,18 +229,23 @@ export class ProductsComponent implements OnInit {
     );
   }
 
-  // ❤️ GESTION DES FAVORIS (AJOUT/RETRAIT)
+  /**
+   * ❤️ Favoris
+   */
   toggleFavorite(p: Product) {
     if (this.isFavorite(p.id)) {
-      console.log('💔 Retrait des favoris :', p);
-      this.store.dispatch(FavoritesActions.removeFromFavorites({ productId: p.id }));
+      this.store.dispatch(
+        FavoritesActions.removeFromFavorites({ productId: p.id })
+      );
     } else {
-      console.log('❤️ Ajout aux favoris :', p);
-      this.store.dispatch(FavoritesActions.addToFavorites({ product: p }));
+      this.store.dispatch(
+        FavoritesActions.addToFavorites({ product: p })
+      );
     }
   }
 
   isFavorite(productId: number): boolean {
-    return this.favoriteProducts.some(p => p.id === productId);
+    return this.favoriteProducts.some((p) => p.id === productId);
   }
 }
+

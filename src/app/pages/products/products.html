@@ -1,11 +1,38 @@
-<div class="products-grid">
-  <mat-card *ngFor="let p of (products$ | async)" class="product-card">
+<!-- 🔍 BARRE DE FILTRES -->
+<div class="filters-bar" [formGroup]="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Note minimale</mat-label>
+    <mat-select formControlName="minRating" (selectionChange)="onFiltersChange()">
+      <mat-option [value]="null">Toutes</mat-option>
+      <mat-option [value]="3">3+</mat-option>
+      <mat-option [value]="4">4+</mat-option>
+      <mat-option [value]="5">5</mat-option>
+    </mat-select>
+  </mat-form-field>
 
+  <mat-form-field appearance="outline">
+    <mat-label>Trier par</mat-label>
+    <mat-select formControlName="ordering" (selectionChange)="onFiltersChange()">
+      <mat-option [value]="null">Par défaut</mat-option>
+      <mat-option value="price">Prix croissant</mat-option>
+      <mat-option value="-price">Prix décroissant</mat-option>
+      <mat-option value="-rating">Meilleures notes</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<!-- ⏳ LOADING -->
+<p *ngIf="loading$ | async">Chargement des produits…</p>
+
+<!-- 📦 LISTE DES PRODUITS -->
+<div class="products-grid" *ngIf="!(loading$ | async)">
+
+  <mat-card *ngFor="let p of (products$ | async)" class="product-card">
     <mat-card-title class="product-title">{{ p.name }}</mat-card-title>
 
     <mat-card-content class="product-content">
-      <div>Prix: {{ p.price | currency : 'EUR' }}</div>
-      <div>Date: {{ p.created_at | date }}</div>
+      <div>Prix : {{ p.price | currency : 'EUR' }}</div>
+      <div>Date : {{ p.created_at | date }}</div>
 
       <div>
         Moyenne :
@@ -15,20 +42,50 @@
         </ng-container>
         <ng-template #noRating>—</ng-template>
       </div>
-
     </mat-card-content>
-    <mat-card-actions>
-        <!-- ❤️ BOUTON AJOUTER AUX FAVORIS -->
-        <button mat-icon-button (click)="toggleFavorite(p)" [attr.aria-label]="isFavorite(p.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'">
-            <mat-icon [color]="isFavorite(p.id) ? 'warn' : 'basic'">
-              {{ isFavorite(p.id) ? 'favorite' : 'favorite_border' }}
-            </mat-icon>
-        </button>
-        <!-- ⭐️ BOUTON AJOUTER AU PANIER -->
-        <button mat-raised-button color="accent" (click)="addToCart(p)">
-            🛒 Ajouter au panier
-        </button>
-    </mat-card-actions>
 
+    <mat-card-actions>
+      <!-- ❤️ FAVORIS -->
+      <button
+        mat-icon-button
+        (click)="toggleFavorite(p)"
+        [attr.aria-label]="isFavorite(p.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+        <mat-icon [color]="isFavorite(p.id) ? 'warn' : undefined">
+          {{ isFavorite(p.id) ? 'favorite' : 'favorite_border' }}
+        </mat-icon>
+      </button>
+
+      <!-- 🛒 PANIER -->
+      <button mat-raised-button color="accent" (click)="addToCart(p)">
+        🛒 Ajouter au panier
+      </button>
+    </mat-card-actions>
   </mat-card>
+
+  <!-- EMPTY STATE -->
+  <p *ngIf="(products$ | async)?.length === 0">
+    Aucun produit ne correspond à vos filtres
+  </p>
+</div>
+
+<!-- 📄 PAGINATION -->
+<div class="pagination" *ngIf="(count$ | async) as total">
+  <button
+    mat-button
+    (click)="previousPage()"
+    [disabled]="filters.value.page === 1">
+    ◀ Précédent
+  </button>
+
+  <span>
+    Page {{ filters.value.page }} /
+    {{ getTotalPages(total) }}
+  </span>
+
+  <button
+    mat-button
+    (click)="nextPage(total)"
+    [disabled]="filters.value.page! >= getTotalPages(total)">
+    Suivant ▶
+  </button>
 </div>
