@@ -52,3 +52,82 @@ h2 {
 .btn-continue:hover {
   background: #0066d6;
 }
+/* Titre */
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Carte panier */
+.cart-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  max-width: 520px;
+  margin-bottom: 1.5rem;
+}
+
+/* Ligne produit */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-details {
+  color: #555;
+}
+
+/* Totaux */
+.cart-total {
+  max-width: 520px;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cart-total div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.cart-total hr {
+  margin: 0.75rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.cart-total strong {
+  font-size: 1.1rem;
+}
+
+/* Bouton */
+.btn-continue {
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-continue:hover {
+  background: #0b5ed7;
+}

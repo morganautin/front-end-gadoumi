@@ -2,15 +2,16 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as P from './products.actions';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../core/notifications/notification.service';
 
 @Injectable()
 export class ProductsEffects {
   private actions$ = inject(Actions);
   private http = inject(HttpClient);
+  private notifications = inject(NotificationService);
 
-  // 🔹 Liste des produits
   loadProducts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(P.loadProducts),
@@ -28,58 +29,24 @@ export class ProductsEffects {
             { params }
           )
           .pipe(
-            map((data) => P.loadProductsSuccess({ data })),
+            map(data => P.loadProductsSuccess({ data })),
             catchError(() =>
-              of(
-                P.loadProductsFailure({
-                  error: 'Products fetch failed',
-                })
-              )
+              of(P.loadProductsFailure({ error: 'Impossible de charger les produits' }))
             )
           );
       })
     )
   );
 
-  // 🔹 Note d’un produit
-  loadRating$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(P.loadRating),
-      switchMap(({ id }) =>
-        this.http
-          .get<{ product_id: number; avg_rating: number; count: number }>(
-            `${environment.apiBaseUrl}products/${id}/rating/`
-          )
-          .pipe(
-            map((r) =>
-              P.loadRatingSuccess({
-                id: r.product_id,
-                avg_rating: r.avg_rating,
-                count: r.count,
-              })
-            ),
-            catchError(() =>
-              of(
-                P.loadRatingFailure({
-                  error: 'Aucune note trouvée pour cet ID.',
-                })
-              )
-            )
-          )
-      )
-    )
-  );
-
-  // 🔹 Détail d'un produit
-  loadProduct$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(P.loadProduct),
-      switchMap(({ id }) =>
-        this.http.get<P.Product>(`${environment.apiBaseUrl}products/${id}/`).pipe(
-          map((product) => P.loadProductSuccess({ product })),
-          catchError(() => of(P.loadProductFailure({ error: 'Product fetch failed' })))
-        )
-      )
-    )
+  loadProductsFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(P.loadProductsFailure),
+        tap(({ error }) => {
+          this.notifications.error(error);
+        })
+      ),
+    { dispatch: false }
   );
 }
+

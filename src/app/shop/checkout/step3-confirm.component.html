@@ -7,6 +7,20 @@
       <p><strong>Nom :</strong> {{ address.name }}</p>
       <p><strong>Adresse :</strong> {{ address.address }}</p>
       <p><strong>Ville :</strong> {{ address.city }}</p>
+
+      <hr />
+
+      <p><strong>Sous-total :</strong> {{ subtotal | currency:'EUR' }}</p>
+      <p><strong>Remise :</strong> {{ discount | currency:'EUR' }}</p>
+      <p><strong>Livraison :</strong> {{ shipping | currency:'EUR' }}</p>
+      <p><strong>Taxes (20%) :</strong> {{ getTaxes() | currency:'EUR' }}</p>
+
+      <hr />
+
+      <p>
+        <strong>Total à payer :</strong>
+        {{ getFinalTotal() | currency:'EUR' }}
+      </p>
     </div>
 
     <button class="btn-confirm" (click)="confirmOrder()">
@@ -15,3 +29,4 @@
 
   </div>
 </div>
+

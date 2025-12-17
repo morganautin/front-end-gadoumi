@@ -95,3 +95,58 @@
 .product-content > div {
   margin-bottom: 4px;
 }
+/* 🦴 Skeleton loader */
+.skeleton-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f3f3f3;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 20px;
+  background: #ddd;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 14px;
+  background: #ddd;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-line.short {
+  width: 40%;
+}
+
+.skeleton-actions {
+  margin-top: 16px;
+  width: 80%;
+  height: 32px;
+  background: #ddd;
+  border-radius: 16px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+/* ❌ Erreur API */
+.error-box {
+  margin: 32px auto;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid #f44336;
+  background: #fdecea;
+  border-radius: 8px;
+}
+
+.error-box p {
+  margin-bottom: 16px;
+  font-weight: 500;
+}

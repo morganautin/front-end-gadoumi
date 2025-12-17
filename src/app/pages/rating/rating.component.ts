@@ -11,6 +11,7 @@ import {
   selectLastRating,
   selectProductsError,
 } from '../../state/products/products.selectors';
+import { NotificationService } from '../../core/notifications/notification.service';
 
 interface ProductRating {
   product_id: number;
@@ -36,16 +37,16 @@ interface ProductRating {
 export class RatingComponent implements OnInit {
   private fb = inject(FormBuilder);
   private store = inject(Store);
+  private notifications = inject(NotificationService);
 
   form = this.fb.group({
     id: [1, Validators.required],
   });
 
-  error: string | null = null;
   lastRating: ProductRating | null = null;
+  error: string | null = null; // ✅ AJOUT MANQUANT
 
   ngOnInit() {
-    // on écoute la dernière note présente dans le store
     this.store.select(selectLastRating).subscribe((r) => {
       if (r) {
         this.lastRating = {
@@ -53,12 +54,15 @@ export class RatingComponent implements OnInit {
           avg_rating: r.avg_rating,
           count: r.count,
         };
+        this.notifications.success('Avis ajouté avec succès');
       }
     });
 
-    // on écoute aussi les erreurs éventuelles
     this.store.select(selectProductsError).subscribe((e) => {
       this.error = e;
+      if (e) {
+        this.notifications.error('Impossible de charger la note');
+      }
     });
   }
 
@@ -68,8 +72,6 @@ export class RatingComponent implements OnInit {
     if (this.form.invalid) return;
 
     const id = this.form.value.id!;
-    // on demande au store de charger la note
     this.store.dispatch(P.loadRating({ id }));
   }
 }
-

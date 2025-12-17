@@ -2,7 +2,8 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
-  isDevMode
+  isDevMode,
+  importProvidersFrom
 } from '@angular/core';
 
 import { provideRouter } from '@angular/router';
@@ -10,6 +11,8 @@ import { routes } from './app.routes';
 
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
+
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { provideStore, provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
@@ -27,6 +30,7 @@ import { USER_FEATURE } from './pages/account/profile/user.state';
 // cart
 import { cartReducer } from './shop/state/cart/cart.reducer';
 import { CART_FEATURE_KEY } from './shop/state/cart/cart.selectors';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -36,30 +40,35 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideAnimations(),
 
+    // ✅ Material Snackbar (compatible toutes versions)
+    importProvidersFrom(MatSnackBarModule),
+
     // store racine
     provideStore({
       auth: authReducer,
       products: productsReducer
     }),
 
-    // 🟦 Enregistrer le state et le reducer du panier.
-    // Le reducer se charge lui-même de lire le localStorage à l'initialisation.
+    // 🟦 Panier
     provideState(CART_FEATURE_KEY, cartReducer),
 
-    // 🟦 Enregistrer le state et le reducer des favoris.
+    // 🟦 Favoris
     provideState(favoritesFeatureKey, favoritesReducer),
 
-    // 🟦 Enregistrer le state et le reducer de l'utilisateur (qui contient les commandes).
+    // 🟦 Utilisateur
     provideState(USER_FEATURE.name, USER_FEATURE.reducer),
 
     provideEffects([
       AuthEffects,
       ProductsEffects,
-      UserEffects, // Ajout de UserEffects
+      UserEffects,
     ]),
+
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),
     }),
   ],
 };
+
+

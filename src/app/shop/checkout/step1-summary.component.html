@@ -12,10 +12,20 @@
   </div>
 </div>
 
-<div class="cart-total" *ngIf="total$ | async as total">
-  <strong>Total : {{ total | currency:'EUR' }}</strong>
+<div class="cart-total" *ngIf="total$ | async as subtotal">
+  <div>Sous-total : {{ subtotal | currency:'EUR' }}</div>
+  <div>Remise : {{ discount | currency:'EUR' }}</div>
+  <div>Livraison : {{ shipping | currency:'EUR' }}</div>
+  <div>Taxes (20%) : {{ getTaxes(subtotal) | currency:'EUR' }}</div>
+
+  <hr />
+
+  <strong>
+    Total : {{ getFinalTotal(subtotal) | currency:'EUR' }}
+  </strong>
 </div>
 
 <button class="btn-continue" (click)="goToAddress()">
   Continuer →
 </button>
+
