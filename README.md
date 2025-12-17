@@ -1,59 +1,142 @@
 # MyShop
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
+MyShop est une application front-end développée avec **Angular** et **NgRx**.
+Elle simule une boutique en ligne complète avec catalogue produits, panier,
+favoris, authentification et tunnel de commande multi-étapes.
 
-## Development server
+Ce projet est réalisé dans le cadre des TP front-end et met l’accent sur :
+- l’expérience utilisateur (UX)
+- la robustesse métier
+- la gestion d’état avec NgRx
+- la qualité logicielle (tests + CI)
 
-To start a local development server, run:
+---
+
+## Fonctionnalités
+
+### Catalogue produits
+- Liste paginée des produits
+- Filtres :
+  - note minimale
+  - tri (prix, note)
+- Synchronisation des filtres et de la pagination dans l’URL (query params)
+- Navigation Back / Forward restaurée automatiquement
+- Skeleton loaders pendant le chargement
+- États d’erreur clairs avec bouton **Réessayer**
+
+### Panier & favoris
+- Ajout / suppression de produits
+- Mise à jour des quantités
+- Calcul automatique des totaux
+- Gestion des favoris
+- État global géré via NgRx
+
+### Authentification
+- Connexion utilisateur
+- Gestion des erreurs de login
+- Stockage des tokens via NgRx
+- Notifications globales en cas de succès ou d’échec
+
+### Tunnel de commande (checkout)
+- Étape 1 : résumé du panier
+- Étape 2 : adresse de livraison
+- Étape 3 : confirmation
+- Garde-fous de navigation :
+  - impossible d’accéder à une étape si la précédente n’est pas valide
+  - panier vide bloqué
+- Calculs métier détaillés :
+  - sous-total
+  - remise
+  - livraison
+  - taxes
+  - total final
+
+### Notifications globales
+Des notifications utilisateur sont affichées dans les cas suivants :
+- échec de connexion
+- erreur de chargement des produits
+- code promo invalide
+- stock insuffisant lors de la validation
+- succès / échec lors de la création d’une commande ou d’un avis
+
+---
+
+## Lancer le projet en local
+
+### Serveur de développement
 
 ```bash
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+http://localhost:4200/
 
-## Code scaffolding
+Quality
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Cette application est configurée pour respecter des standards de qualité
+professionnels.
 
-```bash
-ng generate component component-name
-```
+Lancer les tests unitaires
+npm test
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
-```bash
-ng generate --help
-```
+ou
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
 ng test
-```
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+Les tests couvrent notamment :
 
-```bash
-ng e2e
-```
+Reducers NgRx (logique métier pure)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Selectors (sélecteurs composés et mémoïsés)
 
-## Additional Resources
+Effects (success / failure)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Composants clés (émission d’événements, rendu)
+
+Les tests n’appellent jamais un vrai backend (HTTP et store mockés).
+
+Lancer le lint
+npm run lint
+
+CI GitHub Actions (Pull Request)
+
+Une pipeline GitHub Actions est configurée.
+
+À chaque Pull Request vers la branche main, la CI exécute automatiquement :
+
+Installation des dépendances (npm ci)
+
+Lint
+
+Tests unitaires
+
+Build de l’application
+
+La Pull Request échoue automatiquement si :
+
+le lint échoue
+
+un test échoue
+
+le build échoue
+
+Build de production
+ng build
+
+
+Les fichiers compilés sont générés dans le dossier dist/.
+
+Technologies utilisées
+
+Angular
+
+NgRx (Store, Effects, Selectors)
+
+Angular Material
+
+RxJS
+
+GitHub Actions (CI)
+
+TypeScript
