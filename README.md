@@ -1,6 +1,6 @@
 # MyShop
 
-MyShop est une application front-end développée avec **Angular** et **NgRx**.
+MyShop est une application front-end développée avec **Angular** et **NgRx**.  
 Elle simule une boutique en ligne complète avec catalogue produits, panier,
 favoris, authentification et tunnel de commande multi-étapes.
 
@@ -61,9 +61,19 @@ Des notifications utilisateur sont affichées dans les cas suivants :
 
 ---
 
-## Lancer le projet en local
+## Prérequis
 
-### Serveur de développement
+- Node.js (version recommandée : LTS)
+- Angular CLI
+- npm ou yarn
+
+---
+
+## Installation
+
+Cloner le projet puis installer les dépendances :
 
 ```bash
-ng serve
+git clone <url-du-repo>
+cd myshop
+npm install
