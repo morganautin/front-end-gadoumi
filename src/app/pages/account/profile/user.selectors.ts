@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { UserState } from './user.reducer';
 import { USER_FEATURE } from './user.state';
 
+
 // 1. Sélectionne la "feature" (la tranche) 'user' de l'état global
 export const selectUserFeature = createFeatureSelector<UserState>(USER_FEATURE.name);
 
